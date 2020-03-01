@@ -392,7 +392,7 @@ class BasicExpressionsTests(TestCase):
         self.assertEqual(str(qs.query).count('JOIN'), 2)
     
     def test_30224(self):
-        now = datetime.timedelta(days=20, hours=10)
+        now = datetime.date.today()
         expiryInterval = datetime.timedelta(days=20, hours=10)
         exp = Experiment.objects.create(
             name = "Rohit",
@@ -404,12 +404,14 @@ class BasicExpressionsTests(TestCase):
         )
         res = Result.objects.create(
             experiment = exp,
-            result_time = datetime.datetime.now() +  datetime.timedelta(days=50, hours=10)
+            result_time = datetime.datetime.now() +  datetime.timedelta(days=20, hours=10)
         )
         qs = Experiment.objects \
             .prefetch_related('result') \
             .annotate(min_expiry_date=Min('result__result_time', filter=Q(result__experiment = exp))) \
-            .values()
+            .filter(Q(min_expiry_date__gte = now)
+             & Q(min_expiry_date__lte=(now + expiryInterval + expiryInterval))).values()
+
         print(qs.query)
         print(qs)
         pass
