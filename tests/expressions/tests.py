@@ -390,6 +390,29 @@ class BasicExpressionsTests(TestCase):
             company_ceo_set__num_employees=F('company_ceo_set__num_employees')
         )
         self.assertEqual(str(qs.query).count('JOIN'), 2)
+    
+    def test_30224(self):
+        now = datetime.timedelta(days=20, hours=10)
+        expiryInterval = datetime.timedelta(days=20, hours=10)
+        exp = Experiment.objects.create(
+            name = "Rohit",
+            assigned = datetime.date.today(),
+            completed = datetime.date.today() +  datetime.timedelta(days=20, hours=10),
+            estimated_time = datetime.timedelta(days=20, hours=10),
+            start = datetime.datetime.now(),
+            end = datetime.datetime.now() +  datetime.timedelta(days=20, hours=10)
+        )
+        res = Result.objects.create(
+            experiment = exp,
+            result_time = datetime.datetime.now() +  datetime.timedelta(days=50, hours=10)
+        )
+        qs = Experiment.objects \
+            .prefetch_related('result') \
+            .annotate(min_expiry_date=Min('result__result_time', filter=Q(result__experiment = exp))) \
+            .values()
+        print(qs.query)
+        print(qs)
+        pass
 
     def test_order_by_exists(self):
         mary = Employee.objects.create(firstname='Mary', lastname='Mustermann', salary=20)
