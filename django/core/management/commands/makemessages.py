@@ -366,6 +366,11 @@ class Command(BaseCommand):
             if looks_like_locale.match(lang_code)
         ]
 
+        # Check if input given as locale is valid
+        for l in locale:
+            if not re.match("\.[a-z]{2}-[A-Z]{2}$", l):
+                self.stdout.write("Invalid locale %s" % l)
+
         # Account for excluded locales
         if process_all:
             locales = all_locales
