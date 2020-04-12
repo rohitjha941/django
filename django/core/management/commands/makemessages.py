@@ -366,9 +366,6 @@ class Command(BaseCommand):
             if looks_like_locale.match(lang_code)
         ]
 
-        # Normalize user input locale(s)
-        locale = [normalize_locale(l) for l in locale]
-
         # Account for excluded locales
         if process_all:
             locales = all_locales
